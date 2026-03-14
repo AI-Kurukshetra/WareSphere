@@ -1,0 +1,22 @@
+{
+  "name": "@wms/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "lint": "eslint src drizzle.config.ts --max-warnings=0",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@wms/shared": "workspace:*",
+    "dotenv": "^17.3.1",
+    "drizzle-orm": "^0.45.1",
+    "postgres": "^3.4.8"
+  }
+}

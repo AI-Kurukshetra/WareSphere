@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "paths": {
+      "@wms/db": ["../../packages/db/dist/index.d.ts"],
+      "@wms/db/*": ["../../packages/db/dist/*"],
+      "@wms/shared": ["../../packages/shared/dist/index.d.ts"],
+      "@wms/shared/*": ["../../packages/shared/dist/*"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

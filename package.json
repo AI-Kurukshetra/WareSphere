@@ -1,0 +1,52 @@
+{
+  "name": "aimaha-kruksetra-wms",
+  "private": true,
+  "packageManager": "pnpm@10.32.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "env:check": "node scripts/supabase-remote.mjs check",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "typecheck": "turbo run typecheck",
+    "db:generate": "pnpm --filter @wms/db db:generate",
+    "db:migrate": "node scripts/supabase-remote.mjs push",
+    "db:migrate:direct": "pnpm --filter @wms/db db:migrate",
+    "supabase:link": "node scripts/supabase-remote.mjs link",
+    "supabase:migrations": "node scripts/supabase-remote.mjs migrations",
+    "supabase:push": "node scripts/supabase-remote.mjs push",
+    "supabase:push:seed": "node scripts/supabase-remote.mjs push --include-seed",
+    "supabase:local:start": "node_modules/supabase/bin/supabase start",
+    "supabase:local:reset": "node_modules/supabase/bin/supabase db reset",
+    "auth:provision": "node scripts/provision-auth-users.mjs",
+    "rls:validate": "node scripts/validate-rls.mjs"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "supabase"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.58.2",
+    "@supabase/supabase-js": "^2.99.1",
+    "@types/node": "^25.5.0",
+    "drizzle-kit": "^0.31.9",
+    "esbuild": "^0.27.4",
+    "eslint": "^10.0.3",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "supabase": "^2.78.1",
+    "tsx": "^4.21.0",
+    "turbo": "^2.8.17",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.0",
+    "vitest": "^4.1.0"
+  }
+}

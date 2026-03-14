@@ -1,0 +1,495 @@
+:root {
+  color-scheme: dark;
+  --bg: #07121f;
+  --panel: rgba(10, 26, 43, 0.82);
+  --panel-strong: rgba(17, 38, 61, 0.94);
+  --border: rgba(164, 180, 202, 0.18);
+  --text: #ecf3ff;
+  --muted: #a8b6cb;
+  --accent: #f15a24;
+  --accent-soft: rgba(241, 90, 36, 0.15);
+  --positive: #4ade80;
+  --warning: #fbbf24;
+  --font-sans: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", "Menlo", "Monaco", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(241, 90, 36, 0.22), transparent 28%),
+    radial-gradient(circle at right center, rgba(37, 99, 235, 0.18), transparent 34%),
+    linear-gradient(180deg, #07121f 0%, #0a1625 100%);
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+}
+
+.page-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 20px 64px;
+}
+
+.site-header {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding: 18px 22px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  backdrop-filter: blur(18px);
+}
+
+.site-brand {
+  min-width: 0;
+}
+
+.brand-mark {
+  font-size: 1.2rem;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.site-nav a {
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--muted);
+  transition:
+    border-color 180ms ease,
+    color 180ms ease,
+    background-color 180ms ease;
+}
+
+.site-nav a:hover {
+  color: var(--text);
+  border-color: var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.site-utility {
+  display: grid;
+  justify-items: end;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.session-meta,
+.session-empty {
+  margin: 0;
+  text-align: right;
+}
+
+.session-meta p,
+.session-empty {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.main-content {
+  display: grid;
+  gap: 24px;
+}
+
+.hero-panel,
+.section-block {
+  padding: 28px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  backdrop-filter: blur(18px);
+}
+
+.hero-panel {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1.3fr 1fr;
+}
+
+.hero-title {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 4.6rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  max-width: 11ch;
+}
+
+.hero-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 56ch;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.section-header h1,
+.section-header h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+}
+
+.metrics-grid,
+.workflow-grid,
+.route-grid,
+.detail-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.metrics-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.workflow-grid,
+.route-grid,
+.detail-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.metric-card,
+.workflow-card,
+.route-card,
+.detail-card,
+.task-card,
+.inventory-card {
+  padding: 20px;
+  border-radius: 22px;
+  border: 1px solid var(--border);
+  background: var(--panel-strong);
+}
+
+.metric-card--positive {
+  box-shadow: inset 0 0 0 1px rgba(74, 222, 128, 0.22);
+}
+
+.metric-card--warning {
+  box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.2);
+}
+
+.metric-label,
+.metric-change,
+.workflow-card p,
+.route-card p,
+.detail-card p,
+.task-card p,
+.task-card dt {
+  margin: 0;
+  color: var(--muted);
+}
+
+.metric-value {
+  display: block;
+  margin: 12px 0 8px;
+  font-size: 2rem;
+  letter-spacing: -0.04em;
+}
+
+.workflow-card,
+.route-card {
+  display: grid;
+  gap: 10px;
+}
+
+.workflow-owner,
+.route-card span,
+.status-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: #ffd9cb;
+  font-size: 0.84rem;
+  text-transform: capitalize;
+}
+
+.task-list {
+  display: grid;
+  gap: 14px;
+}
+
+.task-card {
+  display: grid;
+  gap: 16px;
+}
+
+.task-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.task-card dl,
+.inventory-card dl {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+}
+
+.task-card dd,
+.inventory-card dd {
+  margin: 4px 0 0;
+}
+
+.task-actions {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.action-panel,
+.action-form,
+.field-group {
+  display: grid;
+  gap: 12px;
+}
+
+.action-panel {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.helper-copy {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.helper-copy--muted {
+  font-size: 0.95rem;
+}
+
+.field-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.text-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+}
+
+.text-input:focus,
+.text-area:focus {
+  outline: 2px solid rgba(241, 90, 36, 0.45);
+  outline-offset: 2px;
+}
+
+.progress-bar {
+  overflow: hidden;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.progress-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #f15a24 0%, #ffd166 100%);
+}
+
+.inventory-grid {
+  display: grid;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.inventory-card {
+  display: grid;
+  gap: 16px;
+}
+
+.status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.auth-shell {
+  display: grid;
+  gap: 24px;
+}
+
+.auth-grid,
+.auth-card-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-grid {
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.auth-card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-panel,
+.auth-card,
+.current-session {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--panel-strong);
+}
+
+.auth-panel h2 {
+  margin: 0;
+}
+
+.auth-card p,
+.current-session p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.current-session {
+  align-items: center;
+  grid-template-columns: 1fr auto;
+}
+
+.session-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.session-link,
+.session-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(241, 90, 36, 0.2), rgba(241, 90, 36, 0.08));
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.session-button:hover,
+.session-link:hover {
+  border-color: rgba(241, 90, 36, 0.42);
+}
+
+.token-form {
+  display: grid;
+  gap: 12px;
+}
+
+.field-label {
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.text-area {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+.inline-message {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.inline-message--warning {
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #ffedac;
+}
+
+.inline-message--positive {
+  border-color: rgba(74, 222, 128, 0.3);
+  color: #bbf7d0;
+}
+
+.inline-message--error {
+  border-color: rgba(248, 113, 113, 0.32);
+  color: #fecaca;
+}
+
+@media (max-width: 900px) {
+  .hero-panel,
+  .metrics-grid,
+  .workflow-grid,
+  .route-grid,
+  .detail-grid,
+  .auth-grid,
+  .auth-card-grid,
+  .current-session,
+  .task-actions,
+  .field-grid,
+  .task-card dl,
+  .inventory-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .site-utility,
+  .session-meta,
+  .session-empty {
+    justify-items: start;
+    text-align: left;
+  }
+}
