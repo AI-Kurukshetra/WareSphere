@@ -2,6 +2,13 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
+const typedFiles = ["**/*.{ts,tsx}"];
+
+const typedConfigs = tseslint.configs.recommendedTypeChecked.map((config) => ({
+  ...config,
+  files: typedFiles
+}));
+
 export default tseslint.config(
   {
     ignores: [
@@ -12,10 +19,21 @@ export default tseslint.config(
       "pnpm-lock.yaml"
     ]
   },
-  js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
   {
-    files: ["**/*.{ts,tsx}"],
+    ...js.configs.recommended,
+    files: ["**/*.{js,mjs,cjs}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+        ...globals.node
+      }
+    }
+  },
+  ...typedConfigs,
+  {
+    files: typedFiles,
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -38,4 +56,3 @@ export default tseslint.config(
     }
   }
 );
-

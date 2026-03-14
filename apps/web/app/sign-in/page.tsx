@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   getDefaultPathForRole,
   getRoleProfiles,
+  isDevAuthEnabled,
   getSession,
   normalizeRedirectTarget,
   resolvePostSignInPath
@@ -17,7 +18,8 @@ const errorCopy: Record<string, string> = {
   "invalid-token": "The bearer token could not be parsed or is missing a supported role claim.",
   "missing-token": "Paste a bearer token before submitting the token sign-in form.",
   "auth-failed": "Invalid email or password. Check your credentials and try again.",
-  "missing-credentials": "Email and password are required."
+  "missing-credentials": "Email and password are required.",
+  "dev-auth-disabled": "Local role sign-in is disabled outside local development."
 };
 
 const reasonCopy: Record<string, string> = {
@@ -32,7 +34,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const reason = readValue(params.reason);
   const session = await getSession();
   const roleProfiles = getRoleProfiles();
-  const isDevMode = process.env.ALLOW_DEV_AUTH_HEADERS === "true";
+  const isDevMode = isDevAuthEnabled();
   const continuePath = session
     ? resolvePostSignInPath(session.role, nextTarget ?? getDefaultPathForRole(session.role))
     : null;
@@ -42,6 +44,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       <div className="section-header">
         <p className="eyebrow">Access</p>
         <h1 id="sign-in-heading">Warehouse session sign-in</h1>
+        <p className="section-note">
+          Open the live warehouse console with role-aware access and secure Supabase-backed sessions.
+        </p>
       </div>
 
       {reason ? (
@@ -73,35 +78,60 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
         </div>
       ) : null}
 
-      <div className="auth-grid">
-        <div className="auth-panel">
-          <h2>Local role sessions</h2>
-          {!isDevMode ? (
-            <p className="inline-message inline-message--warning">
-              Dev auth is disabled. Set ALLOW_DEV_AUTH_HEADERS=true in .env.local to use these
-              sessions.
-            </p>
-          ) : null}
+      <div className="auth-intro">
+        <div className="auth-intro-copy">
+          <p className="eyebrow">Operator view</p>
+          <h2>One sign-in, every warehouse lane.</h2>
           <p className="hero-copy">
-            Use seeded warehouse users for fast local development against the protected API.
+            Managers release work, operators execute it, and every movement stays visible from
+            receiving through returns.
           </p>
-
-          <div className="auth-card-grid">
-            {Object.entries(roleProfiles).map(([role, profile]) => (
-              <form action="/auth/dev-sign-in" className="auth-card" key={role} method="post">
-                <input name="role" type="hidden" value={role} />
-                <input name="redirectTo" type="hidden" value={nextTarget ?? profile.defaultPath} />
-                <p className="eyebrow">{role}</p>
-                <strong>{profile.displayName}</strong>
-                <p>{profile.email}</p>
-                <span className="status-chip">Default {profile.defaultPath}</span>
-                <button className="session-button" type="submit">
-                  Sign in as {role}
-                </button>
-              </form>
-            ))}
-          </div>
         </div>
+
+        <div className="auth-intro-grid" aria-label="Role access overview">
+          <article className="auth-intro-card">
+            <span>Manager</span>
+            <strong>Counts, inventory, orders</strong>
+            <p>Release work, resolve variance, and monitor stock health.</p>
+          </article>
+          <article className="auth-intro-card">
+            <span>Receiver</span>
+            <strong>Receiving and returns</strong>
+            <p>Confirm inbound units, close put-away, and process return intake.</p>
+          </article>
+          <article className="auth-intro-card">
+            <span>Picker / Packer</span>
+            <strong>Outbound execution</strong>
+            <p>Confirm picks, packing, and shipment dispatch with barcode checks.</p>
+          </article>
+        </div>
+      </div>
+
+      <div className="auth-grid">
+        {isDevMode ? (
+          <div className="auth-panel">
+            <h2>Local role sessions</h2>
+            <p className="hero-copy">
+              Use seeded warehouse users for fast local development against the protected API.
+            </p>
+
+            <div className="auth-card-grid">
+              {Object.entries(roleProfiles).map(([role, profile]) => (
+                <form action="/auth/dev-sign-in" className="auth-card" key={role} method="post">
+                  <input name="role" type="hidden" value={role} />
+                  <input name="redirectTo" type="hidden" value={nextTarget ?? profile.defaultPath} />
+                  <p className="eyebrow">{role}</p>
+                  <strong>{profile.displayName}</strong>
+                  <p>{profile.email}</p>
+                  <span className="status-chip">Default {profile.defaultPath}</span>
+                  <button className="session-button" type="submit">
+                    Sign in as {role}
+                  </button>
+                </form>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="auth-panel">
           <h2>Email sign-in</h2>
@@ -136,6 +166,11 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
               Sign in
             </button>
           </form>
+
+          <div className="auth-footnote">
+            <span className="status-chip status-chip--stable">Production path</span>
+            <p>Use your Supabase email and password. The app stores a secure session cookie after login.</p>
+          </div>
         </div>
       </div>
     </section>

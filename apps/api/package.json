@@ -6,9 +6,10 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
+    "prebuild": "pnpm --dir ../../packages/shared build && pnpm --dir ../../packages/db build",
     "build": "tsc -p tsconfig.build.json",
     "dev": "node --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local --import=tsx --watch src/index.ts",
-    "lint": "eslint src test --max-warnings=0",
+    "lint": "eslint api src test --max-warnings=0",
     "start": "node --env-file-if-exists=../../.env --env-file-if-exists=../../.env.local dist/index.js",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"

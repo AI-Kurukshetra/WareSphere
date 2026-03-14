@@ -10,6 +10,10 @@ export function RouteGroups({ groups }: RouteGroupsProps) {
       <div className="section-header">
         <p className="eyebrow">Backend surface</p>
         <h2 id="route-groups-heading">Initial API groups</h2>
+        <p className="section-note">
+          These route groups back the protected dashboard, receiving queue, inventory view, and
+          outbound workflow screens.
+        </p>
       </div>
 
       <div className="route-grid">
@@ -24,4 +28,3 @@ export function RouteGroups({ groups }: RouteGroupsProps) {
     </section>
   );
 }
-

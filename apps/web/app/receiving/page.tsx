@@ -2,6 +2,8 @@ import { requireRouteAccess } from "../../lib/access";
 import { getReceivingQueue } from "../../lib/api";
 import { confirmReceiptAction, putAwayAction } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 type ReceivingPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -19,12 +21,44 @@ export default async function ReceivingPage({ searchParams }: ReceivingPageProps
   const error = readValue(params.error);
   const taskCode = readValue(params.task);
   const message = readValue(params.message);
+  const openCount = tasks.filter((task) => task.status === "open").length;
+  const stagedCount = tasks.filter((task) => task.status === "in_progress").length;
+  const completedCount = tasks.filter((task) => task.status === "completed").length;
+  const readyForPutaway = tasks.filter(
+    (task) => task.status !== "completed" && task.receivedQuantity > 0
+  ).length;
 
   return (
     <section className="section-block" aria-labelledby="receiving-heading">
       <div className="section-header">
         <p className="eyebrow">Receiving</p>
         <h1 id="receiving-heading">Inbound queue</h1>
+        <p className="section-note">
+          Confirm inbound stock into staging first, then complete put-away into the assigned bin.
+        </p>
+      </div>
+
+      <div className="summary-strip" aria-label="Receiving summary">
+        <article className="summary-card">
+          <p className="summary-label">Open tasks</p>
+          <strong className="summary-value">{openCount}</strong>
+          <p className="summary-note">Waiting for first scan</p>
+        </article>
+        <article className="summary-card">
+          <p className="summary-label">Staged</p>
+          <strong className="summary-value">{stagedCount}</strong>
+          <p className="summary-note">Partially or fully received</p>
+        </article>
+        <article className="summary-card">
+          <p className="summary-label">Ready for put-away</p>
+          <strong className="summary-value">{readyForPutaway}</strong>
+          <p className="summary-note">Can move into storage now</p>
+        </article>
+        <article className="summary-card">
+          <p className="summary-label">Completed</p>
+          <strong className="summary-value">{completedCount}</strong>
+          <p className="summary-note">Fully staged and stored</p>
+        </article>
       </div>
 
       {result ? (
@@ -42,156 +76,166 @@ export default async function ReceivingPage({ searchParams }: ReceivingPageProps
       ) : null}
 
       <div className="task-list">
-        {tasks.map((task) => {
-          const remainingQuantity = task.expectedQuantity - task.receivedQuantity;
-          const completionRatio = Math.round(
-            (task.receivedQuantity / task.expectedQuantity) * 100
-          );
-          const canReceive = task.status !== "completed" && remainingQuantity > 0;
-          const canPutAway = task.status !== "completed" && task.receivedQuantity > 0;
+        {tasks.length === 0 ? (
+          <article className="empty-state">
+            <strong>No inbound tasks are waiting</strong>
+            <p>The receiving queue will populate here when new ASN or inbound work is created.</p>
+          </article>
+        ) : (
+          tasks.map((task) => {
+            const remainingQuantity = task.expectedQuantity - task.receivedQuantity;
+            const completionRatio = Math.round((task.receivedQuantity / task.expectedQuantity) * 100);
+            const canReceive = task.status !== "completed" && remainingQuantity > 0;
+            const canPutAway = task.status !== "completed" && task.receivedQuantity > 0;
 
-          return (
-            <article className="task-card" key={task.id}>
-              <div>
-                <strong>{task.productName}</strong>
-                <p>
-                  {task.sku} • barcode {task.barcode}
-                </p>
-              </div>
-              <dl>
-                <div>
-                  <dt>Expected</dt>
-                  <dd>{task.expectedQuantity}</dd>
-                </div>
-                <div>
-                  <dt>Received</dt>
-                  <dd>{task.receivedQuantity}</dd>
-                </div>
-                <div>
-                  <dt>Remaining</dt>
-                  <dd>{remainingQuantity}</dd>
-                </div>
-                <div>
-                  <dt>Stage</dt>
-                  <dd>{task.stagingBin}</dd>
-                </div>
-                <div>
-                  <dt>Destination</dt>
-                  <dd>{task.destinationBin}</dd>
-                </div>
-                <div>
-                  <dt>Status</dt>
-                  <dd>{task.status}</dd>
-                </div>
-              </dl>
-              <div className="progress-bar" aria-hidden="true">
-                <span style={{ width: `${completionRatio}%` }} />
-              </div>
-
-              <div className="task-actions">
-                <section className="action-panel" aria-labelledby={`${task.id}-receive`}>
+            return (
+              <article className="task-card" key={task.id}>
+                <div className="card-topline">
                   <div>
-                    <p className="eyebrow">Step 1</p>
-                    <h2 id={`${task.id}-receive`}>Confirm receipt</h2>
-                    <p className="helper-copy">
-                      Scan the inbound SKU and confirm the staged quantity for {task.stagingBin}.
+                    <strong>{task.productName}</strong>
+                    <p>
+                      {task.id} • {task.sku}
                     </p>
                   </div>
+                  <span className={`status-chip status-chip--${getTaskTone(task.status)}`}>
+                    {formatStatus(task.status)}
+                  </span>
+                </div>
 
-                  {canReceive ? (
-                    <form action={confirmReceiptAction} className="action-form">
-                      <input name="taskCode" type="hidden" value={task.id} />
-                      <input name="taskId" type="hidden" value={task.id} />
+                <dl>
+                  <div>
+                    <dt>Expected</dt>
+                    <dd>{task.expectedQuantity}</dd>
+                  </div>
+                  <div>
+                    <dt>Received</dt>
+                    <dd>{task.receivedQuantity}</dd>
+                  </div>
+                  <div>
+                    <dt>Stage</dt>
+                    <dd>{task.stagingBin}</dd>
+                  </div>
+                  <div>
+                    <dt>Destination</dt>
+                    <dd>{task.destinationBin}</dd>
+                  </div>
+                </dl>
 
-                      <div className="field-grid">
+                <div className="progress-meta">
+                  <div className="progress-copy">
+                    <strong>{completionRatio}% complete</strong>
+                    <p>{remainingQuantity} units still to receive</p>
+                  </div>
+                  <div className="progress-bar" aria-hidden="true">
+                    <span style={{ width: `${completionRatio}%` }} />
+                  </div>
+                </div>
+
+                <div className="task-actions">
+                  <section className="action-panel" aria-labelledby={`${task.id}-receive`}>
+                    <div>
+                      <p className="eyebrow">Step 1</p>
+                      <h2 id={`${task.id}-receive`}>Confirm receipt</h2>
+                      <p className="helper-copy">
+                        Scan the inbound barcode and confirm the staged quantity for {task.stagingBin}.
+                      </p>
+                    </div>
+
+                    {canReceive ? (
+                      <form action={confirmReceiptAction} className="action-form">
+                        <input name="taskCode" type="hidden" value={task.id} />
+                        <input name="taskId" type="hidden" value={task.id} />
+
+                        <div className="field-grid">
+                          <div className="field-group">
+                            <label className="field-label" htmlFor={`${task.id}-barcode`}>
+                              Barcode
+                            </label>
+                            <input
+                              className="text-input"
+                              defaultValue={task.barcode}
+                              id={`${task.id}-barcode`}
+                              name="barcode"
+                              required
+                              type="text"
+                            />
+                          </div>
+
+                          <div className="field-group">
+                            <label className="field-label" htmlFor={`${task.id}-quantity`}>
+                              Quantity
+                            </label>
+                            <input
+                              className="text-input"
+                              defaultValue={remainingQuantity}
+                              id={`${task.id}-quantity`}
+                              max={remainingQuantity}
+                              min={1}
+                              name="quantity"
+                              required
+                              type="number"
+                            />
+                          </div>
+                        </div>
+
+                        <button className="session-button" type="submit">
+                          Confirm receipt
+                        </button>
+                      </form>
+                    ) : (
+                      <p className="helper-copy helper-copy--muted">
+                        {task.status === "completed"
+                          ? "Receipt is already complete for this task."
+                          : "All expected units are already staged."}
+                      </p>
+                    )}
+                  </section>
+
+                  <section className="action-panel" aria-labelledby={`${task.id}-putaway`}>
+                    <div>
+                      <p className="eyebrow">Step 2</p>
+                      <h2 id={`${task.id}-putaway`}>Complete put-away</h2>
+                      <p className="helper-copy">
+                        Confirm the destination bin once staged units are ready to move into storage.
+                      </p>
+                    </div>
+
+                    {canPutAway ? (
+                      <form action={putAwayAction} className="action-form">
+                        <input name="taskCode" type="hidden" value={task.id} />
+                        <input name="taskId" type="hidden" value={task.id} />
+
                         <div className="field-group">
-                          <label className="field-label" htmlFor={`${task.id}-barcode`}>
-                            Barcode
+                          <label className="field-label" htmlFor={`${task.id}-destination`}>
+                            Destination bin
                           </label>
                           <input
                             className="text-input"
-                            defaultValue={task.barcode}
-                            id={`${task.id}-barcode`}
-                            name="barcode"
+                            defaultValue={task.destinationBin}
+                            id={`${task.id}-destination`}
+                            name="destinationBin"
                             required
                             type="text"
                           />
                         </div>
 
-                        <div className="field-group">
-                          <label className="field-label" htmlFor={`${task.id}-quantity`}>
-                            Quantity
-                          </label>
-                          <input
-                            className="text-input"
-                            defaultValue={remainingQuantity}
-                            id={`${task.id}-quantity`}
-                            max={remainingQuantity}
-                            min={1}
-                            name="quantity"
-                            required
-                            type="number"
-                          />
-                        </div>
-                      </div>
-
-                      <button className="session-button" type="submit">
-                        Confirm receipt
-                      </button>
-                    </form>
-                  ) : (
-                    <p className="helper-copy helper-copy--muted">
-                      {task.status === "completed"
-                        ? "Receipt is already complete for this task."
-                        : "All expected units are already staged."}
-                    </p>
-                  )}
-                </section>
-
-                <section className="action-panel" aria-labelledby={`${task.id}-putaway`}>
-                  <div>
-                    <p className="eyebrow">Step 2</p>
-                    <h2 id={`${task.id}-putaway`}>Complete put-away</h2>
-                    <p className="helper-copy">
-                      Confirm the destination bin once staged units are ready to move.
-                    </p>
-                  </div>
-
-                  {canPutAway ? (
-                    <form action={putAwayAction} className="action-form">
-                      <input name="taskCode" type="hidden" value={task.id} />
-                      <input name="taskId" type="hidden" value={task.id} />
-
-                      <div className="field-group">
-                        <label className="field-label" htmlFor={`${task.id}-destination`}>
-                          Destination bin
-                        </label>
-                        <input
-                          className="text-input"
-                          defaultValue={task.destinationBin}
-                          id={`${task.id}-destination`}
-                          name="destinationBin"
-                          required
-                          type="text"
-                        />
-                      </div>
-
-                      <button className="session-button" type="submit">
-                        Complete put-away
-                      </button>
-                    </form>
-                  ) : (
-                    <p className="helper-copy helper-copy--muted">
-                      {task.status === "completed"
-                        ? "Put-away is already complete for this task."
-                        : "Confirm receipt first to unlock put-away."}
-                    </p>
-                  )}
-                </section>
-              </div>
-            </article>
-          );
-        })}
+                        <button className="session-button" type="submit">
+                          Complete put-away
+                        </button>
+                      </form>
+                    ) : (
+                      <p className="helper-copy helper-copy--muted">
+                        {task.status === "completed"
+                          ? "Put-away is already complete for this task."
+                          : "Confirm receipt first to unlock put-away."}
+                      </p>
+                    )}
+                  </section>
+                </div>
+              </article>
+            );
+          })
+        )}
       </div>
     </section>
   );
@@ -203,4 +247,21 @@ function readValue(value: string | string[] | undefined) {
   }
 
   return value ?? null;
+}
+
+function formatStatus(value: string) {
+  return value.replaceAll("_", " ");
+}
+
+function getTaskTone(status: string) {
+  switch (status) {
+    case "completed":
+      return "positive";
+    case "in_progress":
+      return "accent";
+    case "blocked":
+      return "warning";
+    default:
+      return "stable";
+  }
 }

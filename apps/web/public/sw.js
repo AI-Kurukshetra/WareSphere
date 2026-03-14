@@ -1,9 +1,26 @@
-const CACHE_NAME = "ak-wms-shell-v1";
-const SHELL_ROUTES = ["/", "/receiving", "/inventory", "/orders", "/returns"];
+const CACHE_NAME = "ak-wms-static-v2";
+const STATIC_ROUTES = ["/icon.svg", "/manifest.webmanifest"];
+
+function shouldCache(request) {
+  const url = new URL(request.url);
+
+  if (request.method !== "GET" || url.origin !== self.location.origin) {
+    return false;
+  }
+
+  if (request.mode === "navigate" || url.pathname.startsWith("/api/")) {
+    return false;
+  }
+
+  return (
+    url.pathname.startsWith("/_next/static/") ||
+    STATIC_ROUTES.includes(url.pathname)
+  );
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL_ROUTES))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ROUTES))
   );
 });
 
@@ -20,7 +37,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  if (request.method !== "GET") {
+  if (!shouldCache(request)) {
     return;
   }
 
@@ -44,4 +61,3 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
-

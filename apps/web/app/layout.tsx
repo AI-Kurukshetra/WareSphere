@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import type { RoleKey } from "@wms/shared";
 
 import { PwaBootstrap } from "../components/pwa-bootstrap";
+import { PrimaryNav } from "../components/primary-nav";
 import { getSession, routeAccessByPath } from "../lib/session";
 import "./globals.css";
 
@@ -21,6 +21,7 @@ const navItems = [
   { href: "/", label: "Overview", roles: routeAccessByPath["/"] },
   { href: "/receiving", label: "Receiving", roles: routeAccessByPath["/receiving"] },
   { href: "/inventory", label: "Inventory", roles: routeAccessByPath["/inventory"] },
+  { href: "/counts", label: "Counts", roles: routeAccessByPath["/counts"] },
   { href: "/orders", label: "Orders", roles: routeAccessByPath["/orders"] },
   { href: "/returns", label: "Returns", roles: routeAccessByPath["/returns"] }
 ];
@@ -43,27 +44,31 @@ export default async function RootLayout({
           <header className="site-header">
             <div className="site-brand">
               <p className="eyebrow">AIMaha Kruksetra</p>
-              <strong className="brand-mark">Fulfillment Control Room</strong>
+              <div className="brand-stack">
+                <strong className="brand-mark">Fulfillment Control Room</strong>
+                <p className="brand-copy">
+                  Barcode-first receiving, counts, inventory, and outbound work for one warehouse team.
+                </p>
+              </div>
             </div>
 
-            <nav className="site-nav" aria-label="Primary">
-              {visibleNavItems.map((item) => (
-                <Link href={item.href} key={item.href}>
-                  {item.label}
-                </Link>
-              ))}
-
-              {!session ? <Link href="/sign-in">Sign in</Link> : null}
-            </nav>
+            <PrimaryNav
+              items={visibleNavItems.map((item) => ({
+                href: item.href,
+                label: item.label
+              }))}
+              signedIn={Boolean(session)}
+            />
 
             <div className="site-utility">
               {session ? (
                 <>
                   <div className="session-meta">
-                    <strong>{session.displayName}</strong>
-                    <p>
-                      {session.email} • {session.role}
-                    </p>
+                    <div className="session-topline">
+                      <strong>{session.displayName}</strong>
+                      <span className="status-chip status-chip--accent">{session.role}</span>
+                    </div>
+                    <p>{session.email}</p>
                   </div>
                   <form action="/auth/sign-out" method="post">
                     <input name="redirectTo" type="hidden" value="/sign-in" />
@@ -73,7 +78,7 @@ export default async function RootLayout({
                   </form>
                 </>
               ) : (
-                <p className="session-empty">Choose a session to access protected workflows.</p>
+                <p className="session-empty">Choose a session to open the warehouse workflows.</p>
               )}
             </div>
           </header>

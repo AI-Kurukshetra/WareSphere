@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { putawayInputSchema, receiveStockInputSchema } from "@wms/shared";
@@ -28,6 +29,9 @@ export async function confirmReceiptAction(formData: FormData) {
 
   try {
     await confirmReceipt(session, parsed.data);
+    revalidatePath("/");
+    revalidatePath("/receiving");
+    revalidatePath("/inventory");
 
     redirect(`/receiving?result=receipt-confirmed&task=${encodeURIComponent(taskCode)}`);
   } catch (error) {
@@ -59,6 +63,9 @@ export async function putAwayAction(formData: FormData) {
 
   try {
     await putAway(session, parsed.data);
+    revalidatePath("/");
+    revalidatePath("/receiving");
+    revalidatePath("/inventory");
 
     redirect(`/receiving?result=putaway-completed&task=${encodeURIComponent(taskCode)}`);
   } catch (error) {

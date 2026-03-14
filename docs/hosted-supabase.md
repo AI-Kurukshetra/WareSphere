@@ -6,7 +6,7 @@ This repository is set up for `Node.js + PostgreSQL + hosted Supabase`. Docker i
 - `DATABASE_URL`: runtime database URL used by the API
 - `SUPABASE_URL`: project URL such as `https://<project-ref>.supabase.co`
 - `SUPABASE_ANON_KEY`: web client key
-- `SUPABASE_JWT_SECRET`: JWT verification secret used by the API
+- `SUPABASE_JWT_SECRET`: JWT verification secret used by the API for `HS256` projects
 
 ## Recommended Migration Environment
 - `DATABASE_MIGRATION_URL`: direct Postgres URL for non-interactive schema pushes
@@ -32,3 +32,4 @@ This repository is set up for `Node.js + PostgreSQL + hosted Supabase`. Docker i
 - `pnpm db:migrate` is an alias for the hosted Supabase push workflow.
 - `pnpm db:migrate:direct` keeps the direct Drizzle migration path available when needed.
 - RLS protects Supabase-authenticated database access, but the Node API still enforces role checks on server-side queries.
+- If your Supabase project uses `ES256`, the API can validate bearer tokens from Supabase JWKS using `SUPABASE_URL`.

@@ -134,15 +134,7 @@ async function resolveBearerActor(authorization: string) {
     throw new AuthError(401, "invalid_authorization_header", "Authorization header must use Bearer authentication.");
   }
 
-  const secret = process.env.SUPABASE_JWT_SECRET?.trim();
-
-  if (!secret) {
-    throw new AuthError(
-      500,
-      "auth_configuration_error",
-      "SUPABASE_JWT_SECRET must be configured to verify Supabase access tokens."
-    );
-  }
+  const secret = process.env.SUPABASE_JWT_SECRET?.trim() ?? null;
 
   const token = match[1];
 
@@ -280,7 +272,7 @@ function toActor(
   } satisfies AuthenticatedActor;
 }
 
-async function verifySupabaseJwt(token: string, secret: string) {
+async function verifySupabaseJwt(token: string, secret: string | null) {
   const [encodedHeader, encodedPayload, encodedSignature] = token.split(".");
 
   if (!encodedHeader || !encodedPayload || !encodedSignature) {
@@ -292,6 +284,14 @@ async function verifySupabaseJwt(token: string, secret: string) {
   const providedSignature = decodeBase64Url(encodedSignature);
 
   if (header.alg === "HS256") {
+    if (!secret) {
+      throw new AuthError(
+        500,
+        "auth_configuration_error",
+        "SUPABASE_JWT_SECRET must be configured for HS256 Supabase access tokens."
+      );
+    }
+
     const expectedSignature = createHmac("sha256", secret)
       .update(signedData)
       .digest();
@@ -440,7 +440,10 @@ function buildUserLookup(
 }
 
 function allowDevAuthHeaders() {
-  return process.env.ALLOW_DEV_AUTH_HEADERS === "true" || process.env.NODE_ENV === "test";
+  return process.env.NODE_ENV === "test" || (
+    process.env.ALLOW_DEV_AUTH_HEADERS === "true" &&
+    process.env.NODE_ENV !== "production"
+  );
 }
 
 function sendAuthError(error: AuthError, reply: FastifyReply) {

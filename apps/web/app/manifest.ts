@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "AIMaha Kruksetra WMS",
     short_name: "AK WMS",
-    description: "Warehouse control PWA for receiving, inventory, orders, and returns.",
+    description: "Warehouse control PWA for receiving, counts, inventory, orders, and returns.",
     start_url: "/",
     display: "standalone",
     background_color: "#0f172a",
@@ -18,4 +18,3 @@ export default function manifest(): MetadataRoute.Manifest {
     ]
   };
 }
-

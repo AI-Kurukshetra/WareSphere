@@ -5,12 +5,17 @@ import { roleSchema } from "@wms/shared";
 import {
   createDevSession,
   createSessionCookieValue,
+  isDevAuthEnabled,
   resolvePostSignInPath,
   sessionCookieName,
   sessionCookieOptions
 } from "../../../lib/session";
 
 export async function POST(request: Request) {
+  if (!isDevAuthEnabled()) {
+    return NextResponse.redirect(new URL("/sign-in?error=dev-auth-disabled", request.url));
+  }
+
   const formData = await request.formData();
   const requestedRole = formData.get("role");
   const redirectTo = formData.get("redirectTo");

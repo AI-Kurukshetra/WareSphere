@@ -7,11 +7,18 @@
   },
   "scripts": {
     "build": "turbo run build",
+    "deploy:check": "node scripts/validate-deploy-env.mjs all",
+    "deploy:check:api": "node scripts/validate-deploy-env.mjs api",
+    "deploy:check:web": "node scripts/validate-deploy-env.mjs web",
     "dev": "turbo run dev --parallel",
     "env:check": "node scripts/supabase-remote.mjs check",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "test:e2e": "playwright test",
+    "test:e2e:demo": "pnpm build && PLAYWRIGHT_VIDEO=on playwright test tests/e2e/demo-flow.spec.ts --project=chromium --workers=1",
+    "test:e2e:demo:headed": "pnpm build && PLAYWRIGHT_VIDEO=on PLAYWRIGHT_HEADLESS=false PLAYWRIGHT_SLOW_MO=350 playwright test tests/e2e/demo-flow.spec.ts --project=chromium --workers=1",
+    "test:e2e:headed": "pnpm build && PLAYWRIGHT_HEADLESS=false playwright test --project=chromium",
+    "test:e2e:install": "playwright install chromium",
+    "test:e2e": "pnpm build && playwright test",
     "typecheck": "turbo run typecheck",
     "db:generate": "pnpm --filter @wms/db db:generate",
     "db:migrate": "node scripts/supabase-remote.mjs push",
@@ -47,6 +54,7 @@
     "turbo": "^2.8.17",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.0",
+    "vercel": "^50.32.5",
     "vitest": "^4.1.0"
   }
 }

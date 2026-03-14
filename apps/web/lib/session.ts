@@ -17,6 +17,7 @@ export const routeAccessByPath = {
   "/": ["admin", "manager"],
   "/receiving": ["admin", "manager", "receiver"],
   "/inventory": ["admin", "manager"],
+  "/counts": ["admin", "manager", "receiver"],
   "/orders": ["admin", "manager", "picker", "packer"],
   "/returns": ["admin", "manager", "receiver"]
 } as const satisfies Record<string, readonly RoleKey[]>;
@@ -104,6 +105,10 @@ export function createDevSession(role: RoleKey): DevSession {
     displayName: profile.displayName,
     role
   };
+}
+
+export function isDevAuthEnabled() {
+  return process.env.ALLOW_DEV_AUTH_HEADERS === "true" && process.env.NODE_ENV !== "production";
 }
 
 export function createBearerSession(accessToken: string): BearerSession {

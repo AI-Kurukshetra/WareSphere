@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prebuild": "pnpm --dir ../../packages/shared build",
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint app components --max-warnings=0",
+    "start": "next start",
     "test": "vitest run --passWithNoTests",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
