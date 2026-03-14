@@ -27,6 +27,8 @@ jobs:
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @wms/shared build
+      - run: pnpm --filter @wms/db build
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
