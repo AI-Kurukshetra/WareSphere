@@ -17,6 +17,5 @@ supabase/.temp
 .vscode
 .pnpm-store
 .claude
-pnpm-lock.yaml
 *.tsbuildinfo
 *.pdf
